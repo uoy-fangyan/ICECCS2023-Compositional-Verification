@@ -1,15 +1,12 @@
 [%
-
-
 var stm_name: String;
-for (stm in RC!StateMachineDef.allInstances)
-{ 
-stm_name=stm.name;
+for (stm in RC!StateMachineDef.allInstances){ 
+	stm_name=stm.name;
 }
 
- var javaDate = new Native("java.text.SimpleDateFormat")("ddMMyyyy_hhmmss").
+var javaDate = new Native("java.text.SimpleDateFormat")("ddMMyyyy_hhmmss").
   format(new Native("java.util.Date"));
- var javaDateString = new String;
+var javaDateString = new String;
  javaDateString= javaDate.toString();
 
 %]
@@ -41,124 +38,115 @@ definition wf_rcstore :: "('s, 'e) rctrace \<Rightarrow> 's \<Rightarrow> 's opt
    
 [%
 for (p in RC!RCPackage) {
-if (p.name="Chemical" or p.name="lre_beh"){
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//query the states  to generate enumtype
-"Query the states".println();
-//we assume there is ONLY ONE state machine in the package
-
- 
-var k=0;
-var enum_output: String;
-var set_output: String;
-
-var enum_output_event: String;
-var set_output_event: String;
-
-
- for (n in p.machines.at(0).nodes){
- enum_output= enum_output+ n.zmState() +" | ";
-set_output= set_output+ n.zmState() +", ";}
- 
-//to add the context for thy file "enumtype St = "
-//to cut the last vertical bar
-enum_output= "enumtype St = " + enum_output.substring(0,(enum_output.length()-2));
+	if (p.name="Chemical" or p.name="lre_beh"){
+   
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//query the states  to generate enumtype
+	"Query the states".println();
+	//we assume there is ONLY ONE state machine in the package
+	
+	var k=0;
+	var enum_output: String;
+	var set_output: String;
+	
+	var enum_output_event: String;
+	var set_output_event: String;
+	
+	
+	for (n in p.machines.at(0).nodes){
+		enum_output= enum_output+ n.zmState() +" | ";
+		set_output= set_output+ n.zmState() +", ";}
+	 
+	//to add the context for thy file "enumtype St = "
+	//to cut the last vertical bar
+	enum_output= "enumtype St = " + enum_output.substring(0,(enum_output.length()-2));
 %]
 [%=enum_output%]
-[%set_output= "definition [z_defs]: \"St = {" + set_output.substring(0,(set_output.length()-2))+"}\"";
+[%//set_output= "definition [z_defs]: \"St = {" + set_output.substring(0,(set_output.length()-2))+"}\"";
 %]
-[%=set_output%] 
+[%//=set_output
+%] 
 
 
 [%
 //to generate enum for events
-for (e in p.machines.at(0).events)
-{ 
-"print out the event names".println();
-e.name.println();
- enum_output_event =  enum_output_event+ e.name +" | ";
-set_output_event = set_output_event+ e.name +", ";
+for (e in p.machines.at(0).events){ 
+	"print out the event names".println();
+	 e.name.println();
+	 enum_output_event =  enum_output_event+ e.name +" | ";
+//	 set_output_event = set_output_event+ e.name +", ";
 }
 
 enum_output_event= "enumtype Evt = " + enum_output_event.substring(0,(enum_output_event.length()-2));
 %]
 [%=enum_output_event%]
-[%set_output_event= "definition \"Evt = {" + set_output_event.substring(0,(set_output_event.length()-2))+"}\"";
+[%//set_output_event= "definition \"Evt = {" + set_output_event.substring(0,(set_output_event.length()-2))+"}\"";
 %]
-[%=set_output_event%] 
+[%//=set_output_event
+%] 
 
 
 [%
-//////////////////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------------------------------
 //query the TYPES
-"////////////////////////////////////////////////////////////////////////////////".println();
+//--------------------------------------------------------------
+"--------------------------------------------------------------".println();
 "Query the types".println();
-/////////////////////////////////////////////////////////////////////
+"--------------------------------------------------------------".println();
 //for Enumaration type
-for (e in p.types)
-{
-e.type().name.println();
-("e.name: " + e.name).println();
- if(e.type().name="Enumeration"){
- var enumtype_output: String;
- var enumtype_set_output: String;
- var i=0;
-while(i<e.literals.size()){
-enumtype_output=enumtype_output+ e.literals.at(i).name +" | ";
-enumtype_set_output=enumtype_set_output+ e.literals.at(i).name +", ";
-i++;
-}
+for (e in p.types){
+	e.type().name.println();
+	("e.name: " + e.name).println();
+	if(e.type().name="Enumeration"){
+	var enumtype_output: String;
+	var enumtype_set_output: String;
+	var i=0;
+	while(i<e.literals.size()){
+		enumtype_output=enumtype_output+ e.literals.at(i).name +" | ";
+		enumtype_set_output=enumtype_set_output+ e.literals.at(i).name +", ";
+		i++;
+	}
 enumtype_output="enumtype "+ e.name + " = "+ enumtype_output.subString(0, (enumtype_output.length()-3));
 ("final enumtype_output: " +enumtype_output).println();
 %]
 [%=enumtype_output%]
 
-[%enumtype_set_output="definition \""+ e.name + " = {"+ enumtype_set_output.subString(0, (enumtype_set_output.length()-2))+ "}\"";
-("final enumtype_set_output: " +enumtype_set_output).println();%]
-[%=enumtype_set_output%]
+[%//enumtype_set_output="definition \""+ e.name + " = {"+ enumtype_set_output.subString(0, (enumtype_set_output.length()-2))+ "}\"";
+//("final enumtype_set_output: " +enumtype_set_output).println();
+%]
+[%//=enumtype_set_output
+%]
 [%
  }
 }
 
 /////////////////////////////////////////////////////////////////////
 //for Primitive type
-for (e in p.types)
-{
- if(e.type().name="PrimitiveType"){
-  var primitiveType_output: String;
-  primitiveType_output="type_synonym " + e.name + "= \"nat\"";
-  primitiveType_output.println();%]
+for(e in p.types){
+	if(e.type().name="PrimitiveType"){
+		var primitiveType_output: String;
+		primitiveType_output="type_synonym " + e.name + "= \"nat\"";
+		primitiveType_output.println();%]
 [%=primitiveType_output%]
 [%}
- }
+}
 
 
 /////////////////////////////////////////////////////////////////////
 //for Record type
 "query for record type".println();
-for (e in p.types)
-{
- if(e.type().name="RecordType")
+for(e in p.types){
+	if(e.type().name="RecordType")
 {%]record [%=e.name%] =
 [% // var recordType_output: String;
-  var i=0;
-while(i<e.fields.size()){
-(e.fields.at(i).name + " :: " + e.fields.at(i).Type.ref.name).println();%]
-  [%=e.fields.at(i).name%] :: [%=e.fields.at(i).Type.ref.name%]
-[%//recordType_output=e.fields.at(i).name + " :: " + e.fields.at(i).Type.ref.name;
-i++;
-}
-("record_default " + e.name).println();%]
+		var i=0;
+		while(i<e.fields.size()){
+			(e.fields.at(i).name + " :: " + e.fields.at(i).Type.ref.name).println();%]
+			  [%=e.fields.at(i).name%] :: [%=e.fields.at(i).Type.ref.name%]
+			[%//recordType_output=e.fields.at(i).name + " :: " + e.fields.at(i).Type.ref.name;
+			i++;
+			}
+			("record_default " + e.name).println();%]
 record_default [%=e.name%]
 [%//recordType_output="record " + e.name + "= "+ recordType_output;
 //("recordType_output: " + recordType_output).println();
@@ -170,66 +158,55 @@ record_default [%=e.name%]
 "query for constants definition".println(); 
 var const_string: String;
 //PART 1: transfer all constants in Robochart
-for (vrl in p.machines.at(0).variableList)
-{
-"vrl".println();
-vrl.println();
-
-("vrl.vars.size(): "+vrl.vars.size()).println();
- "".println();
-var i=0;
-while(i< vrl.vars.size()){
-
-if(vrl.vars.at(i).modifier.literal="CONST"){
-
-if(vrl.vars.at(i).type.isTypeOf(TypeRef) or vrl.vars.at(i).type.isTypeOf(ProductType)){
-const_string="consts "+vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.zmType() +"\"";
-("const_string: " +const_string).println();
- "".println();
-}
-if(vrl.vars.at(i).type.isTypeOf(SeqType)){
-if(vrl.vars.at(i).type.domain.isTypeOf(ProductType)){
-vrl.vars.at(i).name.println();
-
-const_string="consts "+ vrl.vars.at(i).name+ " :: \""+ vrl.vars.at(i).type.domain.productString() +" list\"";
-
-} else {
-const_string="consts "+vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.domain.type.zmType() +" list\"";}
-}
+for(vrl in p.machines.at(0).variableList){
+	var i=0;
+	while(i< vrl.vars.size()){
+	
+		if(vrl.vars.at(i).modifier.literal="CONST"){
+		
+		if(vrl.vars.at(i).type.isTypeOf(TypeRef) or vrl.vars.at(i).type.isTypeOf(ProductType)){
+			const_string="consts "+vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.zmType() +"\"";
+			("const_string: " +const_string).println();
+			 "".println();
+		}
+		if(vrl.vars.at(i).type.isTypeOf(SeqType)){
+			if(vrl.vars.at(i).type.domain.isTypeOf(ProductType)){
+				vrl.vars.at(i).name.println();
+				const_string="consts "+ vrl.vars.at(i).name+ " :: \""+ vrl.vars.at(i).type.domain.productString() +" list\"";
+			} else {
+				const_string="consts "+vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.domain.type.zmType() +" list\"";}
+		}
 %][%=const_string%]
-  [%
-} i++;} }
- 
-////PART 2: generate consts for input events as the possible input set
- for (tr in p.machines.at(0).transitions){ 
+	  [%
+	} i++;} }
 
-//CASE 1 input event in transition.trigger
-if(tr.trigger.isDefined() and tr.trigger._type.isDefined() and tr.trigger._type.name="INPUT")
-{
-if(tr.trigger.parameter.type.isTypeOf(TypeRef) or tr.trigger.parameter.type.isTypeOf(ProductType)){
-const_string= "consts " + tr.trigger.parameter.name.firstToUpperCase() + " :: \"" + tr.trigger.parameter.type.zmType() + " set\"";
-}
-else 
-if(tr.trigger.parameter.type.isTypeOf(SeqType)){
-const_string= "consts Seq" + tr.trigger.parameter.name.firstToUpperCase() + " :: \"((" + tr.trigger.parameter.type.domain.zmType() + ") list) set\"";
+//------------------------------------------------------------------
+//PART 2: generate consts for input events as the possible input set
+//-------------------------------------------------------------------
+ for(tr in p.machines.at(0).transitions){ 
 
+	//CASE 1 input event in transition.trigger
+	if(tr.trigger.isDefined() and tr.trigger._type.isDefined() and tr.trigger._type.name="INPUT"){
+		if(tr.trigger.parameter.type.isTypeOf(TypeRef) or tr.trigger.parameter.type.isTypeOf(ProductType)){
+			const_string= "consts " + tr.trigger.parameter.name.firstToUpperCase() + " :: \"" + tr.trigger.parameter.type.zmType() + " set\"";
+		}
+	else if(tr.trigger.parameter.type.isTypeOf(SeqType)){
+		const_string= "consts Seq" + tr.trigger.parameter.name.firstToUpperCase() + " :: \"((" + tr.trigger.parameter.type.domain.zmType() + ") list) set\"";
 }%][%=const_string%]
-  [%
-}
+	  [%
+	}
 
-//CASE 2 input event in transition.action, and there is only one action
-if(tr.action.isDefined() and tr.action.isTypeOf(CommunicationStmt) and  tr.action.communication._type.name="INPUT"){
-
-if(tr.action.communication.parameter.type.isTypeOf(TypeRef) or tr.action.communication.parameter.type.isTypeOf(ProductType)){
-const_string= "consts " + tr.action.communication.parameter.name.firstToUpperCase() + " :: \"" + tr.action.communication.parameter.type.zmType() + " set\"";
-
-} 
-else if(tr.action.parameter.type.isTypeOf(SeqType)){
-const_string= "consts Seq" + tr.action.communication.parameter.name.firstToUpperCase() + " :: \"(" + tr.action.communication.parameter.type.zmType() + " list) set\"";
-}
+	//CASE 2 input event in transition.action, and there is only one action
+	if(tr.action.isDefined() and tr.action.isTypeOf(CommunicationStmt) and  tr.action.communication._type.name="INPUT"){
+		if(tr.action.communication.parameter.type.isTypeOf(TypeRef) or tr.action.communication.parameter.type.isTypeOf(ProductType)){
+			const_string= "consts " + tr.action.communication.parameter.name.firstToUpperCase() + " :: \"" + tr.action.communication.parameter.type.zmType() + " set\"";
+		} 
+		else if(tr.action.parameter.type.isTypeOf(SeqType)){
+			const_string= "consts Seq" + tr.action.communication.parameter.name.firstToUpperCase() + " :: \"(" + tr.action.communication.parameter.type.zmType() + " list) set\"";
+	}
 %][%=const_string%]
-  [%
-}
+	  [%
+	}
 
 
 //CASE 3 input event in transition.action, and there are MULTIPLE actionS
@@ -299,8 +276,7 @@ text \<open> function definition \<close>
 
 [%
 //TO Transform functions into CONSTS for the UNSPECIFIED Functions
-for (f in p.functions.select(s|s.name!="card"))
-{ 
+for(f in p.functions.select(s|s.name!="card")){ 
 
 var func_type:String;
 var function_string: String;
@@ -389,37 +365,35 @@ subsection \<open> State Space \<close>
 //query for the statemachine and variables and consts TO generate zstore
 "variable query TO generate zstore".println();
 var stm_name: String;
-for (stm in p.machines){ 
-//("stm.name: "+stm.name).println();
-stm_name=stm.name;
+for(stm in p.machines){ 
+	stm_name=stm.name;
 }%]
 
 zstore [%=stm_name%] =
 [%
 //Part 1 of zstore is variables from variableLsit
-for (vrl in p.machines.at(0).variableList)
-{
-"vrl".println();
-vrl.println();
+for(vrl in p.machines.at(0).variableList){
+	"vrl".println();
+	vrl.println();
+	
+	("vrl.vars.size(): "+vrl.vars.size()).println();
+	 "".println();
 
-("vrl.vars.size(): "+vrl.vars.size()).println();
- "".println();
-
-var i=0;
-while(i< vrl.vars.size()){
-//vrl.vars.at(i).at(0).type.println();
-var variable_string: String;
-if(vrl.vars.at(i).modifier.literal="VAR"){
-if(vrl.vars.at(i).type.isTypeOf(TypeRef) or vrl.vars.at(i).type.isTypeOf(ProductType)){
-variable_string=vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.zmType() +"\"";
-}
-else if(vrl.vars.at(i).type.isTypeOf(SeqType)){
-if(vrl.vars.at(i).type.domain.isTypeOf(ProductType)){
-variable_string=vrl.vars.at(i).name+ " :: \" " + vrl.vars.at(i).type.domain.productString() +" list\"";} else 
-variable_string=vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.domain.zmType() +" list\"";
-}
+	var i=0;
+	while(i< vrl.vars.size()){
+	//vrl.vars.at(i).at(0).type.println();
+	var variable_string: String;
+	if(vrl.vars.at(i).modifier.literal="VAR"){
+	if(vrl.vars.at(i).type.isTypeOf(TypeRef) or vrl.vars.at(i).type.isTypeOf(ProductType)){
+	variable_string=vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.zmType() +"\"";
+	}
+	else if(vrl.vars.at(i).type.isTypeOf(SeqType)){
+	if(vrl.vars.at(i).type.domain.isTypeOf(ProductType)){
+	variable_string=vrl.vars.at(i).name+ " :: \" " + vrl.vars.at(i).type.domain.productString() +" list\"";} else 
+	variable_string=vrl.vars.at(i).name+ " :: \"" + vrl.vars.at(i).type.domain.zmType() +" list\"";
+	}
 }%]  [%=variable_string%]
-  [%i++;} }
+	  [%i++;} }
 %]  st::"St"
   tr :: "(St, Evt) tag list"
   triggers:: "Evt set"
@@ -439,7 +413,7 @@ var zop_name: String;
 
 //this para_string is a set to contain all the parameter in para segment, and will be used for lemma generation
 
-for (tr in p.machines.at(0).transitions){ 
+for(tr in p.machines.at(0).transitions){ 
 var para_string: OrderedSet;
 
 "START NEW TRANSITION QUERY".println();
@@ -465,9 +439,7 @@ zop_tuple.name = zop_name;
 zop_tuple.hasPara = false;
 zop_tuple.paras = para_string;
 
-
 zoperations_string=zoperations_string+" "+ zop_name;
-
 %]
 zoperation [%=zop_name%] =
   over [%=stm_name%]
@@ -605,7 +577,7 @@ pre_string.println();
   		  [%
 
 if(zop_tuple.hasPara){
-for (p in zop_tuple.paras){
+for(p in zop_tuple.paras){
 %]
          ,[%=p%]\<Zprime> =[%=p%]_input
 [%}}
@@ -629,7 +601,7 @@ if(tr.action.statements.at(i).isTypeOf(Assignment)){
 tr_action_string=","+tr.action.statements.at(i).left.name.name+"\\<Zprime> = "+tr.action.statements.at(i).right.oneSideOfBianryString();
 
 //CASE b, there is input event, we need to use var_input instead of var
-for (p in zop_tuple.paras){
+for(p in zop_tuple.paras){
 if(p.isSubstringOf(tr_action_string))
 //then it means input var is used as parameter in an assignment
 {tr_action_string=tr_action_string.replace(p, (p+"_input"));
@@ -654,8 +626,9 @@ tr_string=tr_string+"@ [Event "+tr.action.communication.event.name +"]";
 }
 
 
-/////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------
 //query for the target state enter action TO generate update section
+//-------------------------------------------------------------------
 if(tr.target.actions.notEmpty()and (tr.target.actions.at(0).isTypeOf(EntryAction) or tr.target.actions.at(0).isTypeOf(DuringAction)) ){
 var target_action_string: String;
 
@@ -667,7 +640,7 @@ if(tr.target.actions.at(0).action.  isTypeOf(Assignment)){
 target_action_string=tr.target.actions.at(0).action.left.name.name+"\\<Zprime> ="+tr.target.actions.at(0).action.right.oneSideOfBianryString();
 
 //CASE b, there is input event involved, we need to use var_input instead of var
-for (p in zop_tuple.paras){
+for(p in zop_tuple.paras){
 if(p.isSubstringOf(target_action_string))
 {target_action_string=target_action_string.replace(p, (p+"_input"));
 }} 
@@ -702,11 +675,11 @@ if(tr.target.actions.at(0).action.statements.at(i).isTypeOf(Assignment)){
 target_action_string=tr.target.actions.at(0).action.statements.at(i).left.name.name+"\\<Zprime> ="+tr.target.actions.at(0).action.statements.at(i).right.oneSideOfBianryString();
 
 //CASE b, there is input event involved, we need to use var_input instead of var
-for (p in zop_tuple.paras){
-if(p.isSubstringOf(target_action_string))
-//then it means input var is used as parameter in an assignment
-{target_action_string=target_action_string.replace(p, (p+"_input"));
-}
+for(p in zop_tuple.paras){
+	if(p.isSubstringOf(target_action_string))
+	//then it means input var is used as parameter in an assignment
+	{target_action_string=target_action_string.replace(p, (p+"_input"));
+	}
 } 
 %]
           ,[%=target_action_string%]
@@ -841,18 +814,20 @@ lemma [%=stm_name%]_deadlock_free: "[%=stm_name%]_axioms  \<Longrightarrow> dead
 }
 %]
 end
-
 [%
+//-------------------------------------------------------------------
+//                     Operations
+//-------------------------------------------------------------------
 operation OrderedSet toparathString(): String{
-var str:String;
-str=self.at(0);
-var i=1;
-while(i<self.size()){
-str= str+", "+self.at(i);
-i++;
-}
-str="("+str + ")";
-return str;
+	var str:String;
+	str=self.at(0);
+	var i=1;
+	while(i<self.size()){
+		str= str+", "+self.at(i);
+		i++;
+	}
+	str="("+str + ")";
+	return str;
 }
 %]
 
@@ -904,47 +879,46 @@ operation RC!Type zmType(): String{
   
 [%
 operation RC!Expression binaryExpString(): String{
-//"self.type".println();
-//self.type.println();
-if(self.isTypeOf(LessThan)){
-return self.lessThanString();}
-else if(self.isTypeOf(GreaterThan)){
-return self.greaterThanString();}
-else if(self.isTypeOf(LessOrEqual)){
-return self.lessOrEqualString();}
-else if(self.isTypeOf(GreaterOrEqual)){
-return self.greaterOrEqualString();}
-else if(self.isTypeOf(Equals)){
-return self.equalsString();}
-else if (self.isTypeOf(And)){
-return self.andString();}
-else if (self.isTypeOf(Or)){
-return self.orString();}
-else if (self.isTypeOf(Not)){
-return self.notString();}
-else if (self.isTypeOf(Plus)){
-return self.plusString();}
-else if (self.isTypeOf(Minus)){
-return self.minusString();}
-else if (self.isTypeOf(Mult)){
-return self.multString();}
-else if(self.isTypeOf(IntegerExp) or self.isTypeOf(RefExp) or self.isTypeOf(CallExp)  or self.isTypeOf(ResultExp) or self.isTypeOf(Selection) or self.isTypeOf(EnumExp) or self.isTypeOf(ArrayExp) or self.isTypeOf(TupleExp) or self.isTypeOf(ClockExp) or self.isTypeOf(SeqExp) ){
-return self.oneSideOfBianryString();}
-else if(self.isTypeOf(ParExp)){
-return self.exp.binaryExpString();
-}
+	
+	if(self.isTypeOf(LessThan)){
+		return self.lessThanString();}
+	else if(self.isTypeOf(GreaterThan)){
+		return self.greaterThanString();}
+	else if(self.isTypeOf(LessOrEqual)){
+		return self.lessOrEqualString();}
+	else if(self.isTypeOf(GreaterOrEqual)){
+		return self.greaterOrEqualString();}
+	else if(self.isTypeOf(Equals)){
+		return self.equalsString();}
+	else if (self.isTypeOf(And)){
+		return self.andString();}
+	else if (self.isTypeOf(Or)){
+		return self.orString();}
+	else if (self.isTypeOf(Not)){
+		return self.notString();}
+	else if (self.isTypeOf(Plus)){
+		return self.plusString();}
+	else if (self.isTypeOf(Minus)){
+		return self.minusString();}
+	else if (self.isTypeOf(Mult)){
+		return self.multString();}
+	else if(self.isTypeOf(IntegerExp) or self.isTypeOf(RefExp) or self.isTypeOf(CallExp)  or self.isTypeOf(ResultExp) or self.isTypeOf(Selection) or self.isTypeOf(EnumExp) or self.isTypeOf(ArrayExp) or self.isTypeOf(TupleExp) or self.isTypeOf(ClockExp) or self.isTypeOf(SeqExp) ){
+		return self.oneSideOfBianryString();}
+	else if(self.isTypeOf(ParExp)){
+		return self.exp.binaryExpString();
+	}
 }
 %]
 [%
 
 operation RC!Expression lessThanString(): String{
-return self.left.binaryExpString() +"<" + self.right.binaryExpString();
+	return self.left.binaryExpString() +"<" + self.right.binaryExpString();
 }
 %]
 
 [%
 operation RC!Expression lessOrEqualString(): String{
-return self.left.binaryExpString() +"\\<le>" + self.right.binaryExpString();
+	return self.left.binaryExpString() +"\\<le>" + self.right.binaryExpString();
 }
 %]
 
@@ -956,49 +930,49 @@ return self.left.binaryExpString() +">" + self.right.binaryExpString();
 
 [%
 operation RC!Expression greaterOrEqualString(): String{
-return self.left.binaryExpString() +"\\<ge>" + self.right.binaryExpString();
+	return self.left.binaryExpString() +"\\<ge>" + self.right.binaryExpString();
 }
 %]
 
 [%
 operation RC!Expression equalsString(): String{
-return self.left.binaryExpString() +"= (" + self.right.binaryExpString()+")";
+	return self.left.binaryExpString() +"= (" + self.right.binaryExpString()+")";
 }
 %]
 [%
 operation RC!Expression andString(): String{
-return self.left.binaryExpString() +" \\<and> " + self.right.binaryExpString();
+	return self.left.binaryExpString() +" \\<and> " + self.right.binaryExpString();
 }
 %]
 
 [%
 operation RC!Expression orString(): String{
-return "("+self.left.binaryExpString() +" \\<or> " + self.right.binaryExpString()+")";
+	return "("+self.left.binaryExpString() +" \\<or> " + self.right.binaryExpString()+")";
 }
 %]
 
 [%
 operation RC!Expression notString(): String{
-return "\\<not>" + self.exp.binaryExpString();
+	return "\\<not>" + self.exp.binaryExpString();
 }
 %]
 
 [%
 operation RC!Expression plusString(): String{
-return "("+self.left.binaryExpString() +" + " + self.right.binaryExpString()+")";
+	return "("+self.left.binaryExpString() +" + " + self.right.binaryExpString()+")";
 }
 %]
 
 [%
 operation RC!Expression minusString(): String{
-return "("+self.left.binaryExpString() +" - " + self.right.binaryExpString()+")";
+	return "("+self.left.binaryExpString() +" - " + self.right.binaryExpString()+")";
 }
 %]
 
 
 [%
 operation RC!Expression multString(): String{
-return "("+self.left.binaryExpString() +" * " + self.right.binaryExpString()+")";
+	return "("+self.left.binaryExpString() +" * " + self.right.binaryExpString()+")";
 }
 %]
 [%
@@ -1006,194 +980,182 @@ return "("+self.left.binaryExpString() +" * " + self.right.binaryExpString()+")"
 //to return the string of left or right expression string of the binary expression
 //currently covers 3 types: Integer, RefExp, CallExp
 operation RC!Expression oneSideOfBianryString(): String{
-if(self.isTypeOf(IntegerExp)){
-return self.value.toString();
-}
-else if(self.isTypeOf(RefExp)){
-return self.ref.name;
-}
-else if(self.isTypeOf(CallExp)){
-return self.callExpString();
-}
-else if(self.isTypeOf(ResultExp)){
-return "result";
-}
-else if(self.isTypeOf(Selection)){
-return self.member.name+"("+self.receiver.value.ref.name+"!"+self.receiver.parameters.at(0).ref.name+")";
-}
-
-else if(self.isTypeOf(EnumExp)){
-return self.literal.name;
-}
-else if(self.isTypeOf(SeqExp)){
-return self.sequenceString();
-}
-
-else if(self.isTypeOf(ArrayExp)){
-return self.value.ref.name + "."+self.parameters.at(0).value;
-//e.g., vel[1] -> vel.1
-}
-
-else if(self.isTypeOf(TupleExp)){
-return "("+ self.values.at(0).oneSideOfBianryString()+", "+self.values.at(1).oneSideOfBianryString() +")";
-//e.g., (3,4)
-}
-
-else if(self.isTypeOf(ClockExp)){
-return "clock";
-}
-}
- 
- %]
+	if(self.isTypeOf(IntegerExp)){
+		return self.value.toString();
+	}
+	else if(self.isTypeOf(RefExp)){
+		return self.ref.name;
+	}
+	else if(self.isTypeOf(CallExp)){
+		return self.callExpString();
+	}
+	else if(self.isTypeOf(ResultExp)){
+		return "result";
+	}
+	else if(self.isTypeOf(Selection)){
+		return self.member.name+"("+self.receiver.value.ref.name+"!"+self.receiver.parameters.at(0).ref.name+")";
+	}
+	
+	else if(self.isTypeOf(EnumExp)){
+		return self.literal.name;
+	}
+	else if(self.isTypeOf(SeqExp)){
+		return self.sequenceString();
+	}
+	
+	else if(self.isTypeOf(ArrayExp)){
+		return self.value.ref.name + "."+self.parameters.at(0).value;
+	//e.g., vel[1] -> vel.1
+	}
+	
+	else if(self.isTypeOf(TupleExp)){
+		return "("+ self.values.at(0).oneSideOfBianryString()+", "+self.values.at(1).oneSideOfBianryString() +")";
+	//e.g., (3,4)
+	}
+	
+	else if(self.isTypeOf(ClockExp)){
+		return "clock";
+	}
+} 
+%]
   
- 
   
   
   
 [*to generate the CallExp expression string for the statement of CallExp type, i.e. functions*]
 [% 
 operation RC!CallExp callExpString(): String{
-var args_string: String;
-var callExp_string: String;
-//to get the parameter on the right
-
-if(self.args.at(0).isTypeOf(RefExp)){
-args_string= self.args.at(0).ref.name;
-}
-else 
-//this branch is for callexp used in functions where we have the keyword result
-if(self.args.at(0).isTypeOf(ResultExp)){
-args_string= "result";
-}
-else
-if(self.args.at(0).isTypeOf(Selection)){
-args_string=self.args.at(0).member.name+"("+self.args.at(0).receiver.value.ref.name+"!"+self.args.at(0).receiver.parameters.at(0).ref.name+")";
-}
-
-//for the case that there are more than 2 args, we need insert ',' between args
-var j=1;
-while(j<self.args.size()){
-
-if(self.args.at(j).isTypeOf(RefExp)){
-args_string=args_string+ ", "+ self.args.at(j).ref.name;
-}
-else 
-//this branch is for callexp used in functions where we have the keyword result
-if(self.args.at(j).isTypeOf(ResultExp)){
-args_string=args_string+ ", "+ "result";
-}
-else
-if(self.args.at(j).isTypeOf(Selection)){
-self.args.at(j).receiver.println();
-args_string= args_string+ ", "+self.args.at(j).member.name+"("+self.args.at(j).receiver.value.ref.name+"!"+self.args.at(j).receiver.parameters.at(0).ref.name+")";
-}
-j++;
-}
-
-callExp_string=self.`function`.ref.name+"("+args_string+")";
-return callExp_string;
-}
+	var args_string: String;
+	var callExp_string: String;
+	//to get the parameter on the right
+	
+	if(self.args.at(0).isTypeOf(RefExp)){
+		args_string= self.args.at(0).ref.name;
+	}
+	else 
+	//this branch is for callexp used in functions where we have the keyword result
+	if(self.args.at(0).isTypeOf(ResultExp)){
+		args_string= "result";
+	}
+	else
+	if(self.args.at(0).isTypeOf(Selection)){
+		args_string=self.args.at(0).member.name+"("+self.args.at(0).receiver.value.ref.name+"!"+self.args.at(0).receiver.parameters.at(0).ref.name+")";
+	}
+	
+	//for the case that there are more than 2 args, we need insert ',' between args
+	var j=1;
+	while(j<self.args.size()){
+	
+		if(self.args.at(j).isTypeOf(RefExp)){
+			args_string=args_string+ ", "+ self.args.at(j).ref.name;
+		}
+		else 
+		//this branch is for callexp used in functions where we have the keyword result
+		if(self.args.at(j).isTypeOf(ResultExp)){
+			args_string=args_string+ ", "+ "result";
+		}
+		else
+		if(self.args.at(j).isTypeOf(Selection)){
+			self.args.at(j).receiver.println();
+			args_string= args_string+ ", "+self.args.at(j).member.name+"("+self.args.at(j).receiver.value.ref.name+"!"+self.args.at(j).receiver.parameters.at(0).ref.name+")";
+		}
+		j++;
+	}
+	
+	callExp_string=self.`function`.ref.name+"("+args_string+")";
+	return callExp_string;
+	}
   %]
-  
-  
-  
-  
-  
-
+    
 [*to generate the Call expression string for the statement of Call type, i.e. operations*]
 [% 
 operation RC!Call callString(): String{
-var args_string: String;
-var call_string: String;
-//to get the parameter on the right
-if(self.args.size()=0){
-args_string="";
-}
-else if(self.args.size()>0){
-if(self.args.at(0).isTypeOf(RefExp)){
-args_string= self.args.at(0).ref.name;
-}
-else if(self.args.at(0).isTypeOf(IntegerExp)){
-args_string= self.args.at(0).value.toString();
-}
-else if(self.args.at(0).isTypeOf(EnumExp)){
-args_string= self.args.at(0).literal.name;
-}
-else 
-//this branch is for callexp used in functions where we have the keyword result
-if(self.args.at(0).isTypeOf(ResultExp)){
-args_string= "result";
-}
-else
-if(self.args.at(0).isTypeOf(Selection)){
-args_string=self.args.at(0).member.name+"("+self.args.at(0).receiver.value.ref.name+"!"+self.args.at(0).receiver.parameters.at(0).ref.name+")";
-}
-
-//for the case that there are more than 2 args, we need insert ',' between args
-var j=1;
-while(j<self.args.size()){
-//"self.args.at(j).type:".println();
-//self.args.at(j).type.println();
-
-
-if(self.args.at(j).isTypeOf(RefExp)){
-args_string=args_string+ ", "+ self.args.at(j).ref.name;
-}
-else if(self.args.at(j).isTypeOf(IntegerExp)){
-args_string= args_string+ ", "+ self.args.at(j).value.toString();
-}
-else if(self.args.at(j).isTypeOf(EnumExp)){
-args_string= args_string+ ", "+ self.args.at(j).literal.name;
-}
-else 
-//this branch is for callexp used in functions where we have the keyword result
-if(self.args.at(j).isTypeOf(ResultExp)){
-args_string=args_string+ ", "+ "result";
-}
-else
-if(self.args.at(j).isTypeOf(Selection)){
-self.args.at(j).receiver.println();
-args_string= args_string+ ", "+self.args.at(j).member.name+"("+self.args.at(j).receiver.value.ref.name+"!"+self.args.at(j).receiver.parameters.at(0).ref.name+")";
-
-}
-
-j++;
-}
-}
-call_string=self.`operation`.name+"("+args_string+")";
-return call_string;
+	var args_string: String;
+	var call_string: String;
+	//to get the parameter on the right
+	if(self.args.size()=0){
+		args_string="";
+	}
+	else if(self.args.size()>0){
+		if(self.args.at(0).isTypeOf(RefExp)){
+			args_string= self.args.at(0).ref.name;
+		}
+		else if(self.args.at(0).isTypeOf(IntegerExp)){
+			args_string= self.args.at(0).value.toString();
+		}
+		else if(self.args.at(0).isTypeOf(EnumExp)){
+			args_string= self.args.at(0).literal.name;
+		}
+		else 
+		//this branch is for callexp used in functions where we have the keyword result
+		if(self.args.at(0).isTypeOf(ResultExp)){
+			args_string= "result";
+		}
+		else
+		if(self.args.at(0).isTypeOf(Selection)){
+			args_string=self.args.at(0).member.name+"("+self.args.at(0).receiver.value.ref.name+"!"+self.args.at(0).receiver.parameters.at(0).ref.name+")";
+		}
+		
+		//for the case that there are more than 2 args, we need insert ',' between args
+		var j=1;
+		while(j<self.args.size()){
+		//"self.args.at(j).type:".println();
+		//self.args.at(j).type.println();
+				
+		if(self.args.at(j).isTypeOf(RefExp)){
+			args_string=args_string+ ", "+ self.args.at(j).ref.name;
+		}
+		else if(self.args.at(j).isTypeOf(IntegerExp)){
+			args_string= args_string+ ", "+ self.args.at(j).value.toString();
+		}
+		else if(self.args.at(j).isTypeOf(EnumExp)){
+			args_string= args_string+ ", "+ self.args.at(j).literal.name;
+		}
+		else 
+		//this branch is for callexp used in functions where we have the keyword result
+		if(self.args.at(j).isTypeOf(ResultExp)){
+			args_string=args_string+ ", "+ "result";
+		}
+		else
+		if(self.args.at(j).isTypeOf(Selection)){
+			self.args.at(j).receiver.println();
+		args_string= args_string+ ", "+self.args.at(j).member.name+"("+self.args.at(j).receiver.value.ref.name+"!"+self.args.at(j).receiver.parameters.at(0).ref.name+")";
+		
+		}
+		
+		j++;
+		}
+	}
+	call_string=self.`operation`.name+"("+args_string+")";
+	return call_string;
 }
   %]
-  
-
 
   
 [%
 operation RC!SeqExp sequenceString(): String{
-
-if(self.values.size()=0){
-return  "[]";
-} 
-else if(self.values.size()>0) {
-var m=1;
-var sequence_string="["+self.values.at(0);
-while (m<self.values.size()){
-sequence_string=sequence_string+", "+self.values.at(m);
-m++;
-}
-sequence_string=sequence_string+"]";
-return sequence_string;
-}
+	
+	if(self.values.size()=0){
+		return  "[]";
+	} 
+	else if(self.values.size()>0) {
+		var m=1;
+		var sequence_string="["+self.values.at(0);
+		while (m<self.values.size()){
+			sequence_string=sequence_string+", "+self.values.at(m);
+			m++;
+		}
+		sequence_string=sequence_string+"]";
+		return sequence_string;
+	}
 }
 %]
 
 
 [%
 operation RC!ProductType productString(): String{
-var strings: String;
-strings= "("+self.types.at(0).zmType() + "\\<times>" + self.types.at(1).zmType()+")" ;
- return strings;
+	var strings: String;
+	strings= "("+self.types.at(0).zmType() + "\\<times>" + self.types.at(1).zmType()+")" ;
+	return strings;
 }
 %]
-
-

@@ -27,12 +27,9 @@ subsection \<open> type definition \<close>
 
 enumtype St = OCM | MOM | HCM | CAM | initial 
 
-definition [z_defs]: "St = {OCM, MOM, HCM, CAM, initial}" 
-
 
 enumtype Evt = advVel | reqHCM | reqOCM | reqMOM | endTask | reqVel 
 
-definition "Evt = {advVel, reqHCM, reqOCM, reqMOM, endTask, reqVel}"
 
 type_synonym coord="real\<times>real"
 
@@ -352,9 +349,13 @@ reqV\<leadsto> (0,0),
    tr  \<leadsto> [State initial],
    triggers \<leadsto>  {reqOCM}
    ]"
-
-
-
+(*
+zmachine LRE_BehMachine =
+  init Init
+  invariant LRE_Beh_inv
+  operations    InitialToOCM  OCMToOCM
+ OCMToMOM MOMToOCM MOMToOCM_1  MOMToOCM_2 HCMToOCM HCMToOCM_1 MOMToHCM  HCMToMOM HCMToCAM HCMToCAM_1  MOMToCAM MOMToCAM_1  CAMToCAM CAMToCAM_1  CAMToOCM CAMToOCM_1 
+*)
   
 def_consts Velocities = "{(0,1),(0,-2), (2,0),(-4,0)}"
 declare Velocities_def [z_defs]

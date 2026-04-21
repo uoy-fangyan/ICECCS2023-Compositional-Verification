@@ -13,13 +13,7 @@ subsection \<open> type definition \<close>
 
 enumtype St = OCM | MOM | HCM | CAM | initial 
 
-definition [z_defs]: "St = {OCM, MOM, HCM, CAM, initial}" 
-
-
 enumtype Evt = advVel | reqHCM | reqOCM | reqMOM | endTask | reqVel 
-
-definition "Evt = {advVel, reqHCM, reqOCM, reqMOM, endTask, reqVel}"
-
 
 
 datatype ('s, 'e) tag =
@@ -482,7 +476,6 @@ lemma Move_inv [hoare_lemmas]: "Move() preserves LRE_Beh_inv"
 subsection \<open> Safety Requirements \<close>
 
 zmachine LRE_BehMachine =
-over LRE_Beh
   init   "  [pos\<leadsto>(0,0),
 xvel \<leadsto> 0,
 yvel \<leadsto> 0,
@@ -493,9 +486,9 @@ tr  \<leadsto> [State initial],
 ]"
   invariant LRE_Beh_inv
   operations    InitialToOCM  OCMToOCM
- OCMToMOM MOMToOCM MOMToOCM_1  MOMToOCM_2 HCMToOCM HCMToOCM_1 MOMToHCM  HCMToMOM  HCMToCAM HCMToCAM_1  MOMToCAM MOMToCAM_1  CAMToCAM CAMToCAM_1  CAMToOCM CAMToOCM_1 
+ OCMToMOM MOMToOCM MOMToOCM_1  MOMToOCM_2 HCMToOCM HCMToOCM_1 MOMToHCM  HCMToMOM  
+HCMToCAM HCMToCAM_1  MOMToCAM MOMToCAM_1  CAMToCAM CAMToCAM_1  CAMToOCM CAMToOCM_1 
   
-
 lemma LRE_Beh_deadlock_free: " deadlock_free LRE_BehMachine" 
   apply deadlock_free
   by (metis St.exhaust_disc)

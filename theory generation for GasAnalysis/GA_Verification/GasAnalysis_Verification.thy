@@ -28,20 +28,15 @@ subsection \<open> type definition \<close>
 
 enumtype St = initial | NoGas | GasDetected | Analysis  | Reading  | final
 
-definition "St = {initial , NoGas , GasDetected , Analysis , Reading  , final}"
 
 
 enumtype Evt = gas | turn | resume | stop
 
-definition "Evt = {gas, turn, resume, stop}"
 
 
 enumtype Angle = Left | Right | Back |Front
 
-definition "Angle = {Left, Right, Back, Front}"
-
 enumtype Status = noGas | gasD
-definition "Status= {noGas, gasD}"
 
 type_synonym Chem= "nat"
 type_synonym Intensity= "nat"
